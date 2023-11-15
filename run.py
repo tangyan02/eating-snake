@@ -4,15 +4,18 @@ from collections import deque
 import numpy as np
 import torch
 import torch.nn as nn
+from matplotlib import pyplot as plt
 
 from Game import GameEnvironment
 from model import QNetwork, get_network_input
 from replay_buffer import ReplayMemory
 
 epsilon = 0.1
+epsilonReduceStep = 500
+
 gridsize = 15
 GAMMA = 0.9
-model = QNetwork(input_dim=12, hidden_dim=256, output_dim=5)
+model = QNetwork(input_dim=16, hidden_dim=256, output_dim=5)
 epStart = 0
 if epStart > 0:
     model.load_state_dict(torch.load(f'model/model_{epStart}.ln'))
@@ -22,7 +25,7 @@ memory = ReplayMemory(1000)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 
 
-def run_episode(num_games):
+def run_episode(num_games, i_episode):
     run = True
     move = 0
     games_played = 0
@@ -34,7 +37,7 @@ def run_episode(num_games):
         state = get_network_input(board)
         action_0 = model(state)
         rand = np.random.uniform(0, 1)
-        if rand > epsilon:
+        if rand > epsilon or i_episode > epsilonReduceStep:
             action = torch.argmax(action_0)
         else:
             action = np.random.randint(0, 5)
@@ -119,7 +122,7 @@ def train():
 
         ## print('i_episode: ', i_episode)
 
-        score, avg_len, max_len = run_episode(games_in_episode)
+        score, avg_len, max_len = run_episode(games_in_episode, i_episode)
         scores_deque.append(score)
         scores_array.append(score)
         avg_len_array.append(avg_len)
@@ -136,19 +139,20 @@ def train():
             print(
                 'Ep.: {:6}, Loss: {:.3f}, Avg.Score: {:.2f}, Avg.LenOfSnake: {:.2f}, Max.LenOfSnake:  {:.2f} Time: {:02}:{:02}:{:02} '. \
                     format(i_episode, total_loss, score, avg_len, max_len, dt // 3600, dt % 3600 // 60, dt % 60))
-            # plt.plot(np.arange(1 + epStart, len(avg_len_array) + 1 + epStart), avg_len_array, label="Avg Len of Snake")
-            # plt.plot(np.arange(1 + epStart, len(avg_max_len_array) + 1 + epStart), avg_max_len_array,
-            #          label="Max Len of Snake")
-            # plt.legend(bbox_to_anchor=(1.05, 1))
-            # plt.ylabel('Length of Snake')
-            # plt.xlabel('Episodes #')
-            # plt.show()
 
         memory.truncate()
 
         if i_episode % 250 == 0 and i_episode > 0:
             #     torch.save(model.state_dict(), './dir_chk_len/Snake_{}'.format(i_episode))
             torch.save(model.state_dict(), f"model/model_{i_episode}.ln")
+
+            plt.plot(np.arange(1 + epStart, len(avg_len_array) + 1 + epStart), avg_len_array, label="Avg Len of Snake")
+            plt.plot(np.arange(1 + epStart, len(avg_max_len_array) + 1 + epStart), avg_max_len_array,
+                     label="Max Len of Snake")
+            plt.legend(bbox_to_anchor=(1.05, 1))
+            plt.ylabel('Length of Snake')
+            plt.xlabel('Episodes #')
+            plt.show()
 
     return scores_array, avg_scores_array, avg_len_array, avg_max_len_array
 

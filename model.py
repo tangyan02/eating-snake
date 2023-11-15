@@ -27,5 +27,5 @@ def get_network_input(board):
     proximity = player.getproximity()
     x = torch.cat([torch.from_numpy(player.pos).double(), torch.from_numpy(apple.pos).double(),
                    torch.from_numpy(player.dir).double(), torch.tensor(proximity).double(),
-                   torch.tensor(player.relativeForApple(apple.pos))])
+                   torch.tensor(player.relativeForApple(apple.pos)), torch.tensor(board.getBodySide())])
     return x

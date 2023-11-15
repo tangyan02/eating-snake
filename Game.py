@@ -96,6 +96,22 @@ class GameEnvironment(object):
         self.snake.len = initial_playersize
         self.game_over = False
 
+    def getBodySide(self):
+        up = 0
+        right = 0
+        down = self.gridsize
+        left = self.gridsize
+        for pos in self.snake.prevpos:
+            if pos[0] < left:
+                left = pos[0]
+            if pos[0] > right:
+                right = pos[0]
+            if pos[1] < down:
+                down = pos[1]
+            if pos[1] > up:
+                up = pos[1]
+        return [up, down, left, right]
+
     def getFillCount(self):
         self.snakeFlag = [[0] * self.gridsize for _ in range(self.gridsize)]
 
