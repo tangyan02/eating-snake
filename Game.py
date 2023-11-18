@@ -147,7 +147,7 @@ class GameEnvironment(object):
         self.snake.move()
         self.time_since_apple += 1
         # --
-        if self.time_since_apple == 100:  # episode为100时候结束游戏
+        if self.time_since_apple == 200:  # episode为100时候结束游戏
             self.game_over = True
             reward = self.reward_dead
             self.time_since_apple = 0

@@ -5,13 +5,12 @@ from model import QNetwork, get_network_input
 import torch
 import sys
 
-gridsize = 15  # 13
+gridsize = 14  # 13
 framerate = 10
 block_size = 20
 
-model = QNetwork(input_dim=16, hidden_dim=256, output_dim=5)
-# model.load_state_dict(torch.load('./dir_chk_lr0.0001/Snake_40000'))
-model.load_state_dict(torch.load('model/model_2500.ln'))
+model = QNetwork()
+model.load_state_dict(torch.load('model/model_1500.ln'))
 
 board = GameEnvironment(gridsize, 0., -100., 100.)
 windowwidth = gridsize * block_size * 2

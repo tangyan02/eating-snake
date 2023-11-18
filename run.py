@@ -10,22 +10,25 @@ from Game import GameEnvironment
 from model import QNetwork, get_network_input
 from replay_buffer import ReplayMemory
 
-epsilon = 0.1
-epsilonReduceStep = 500
+epsilon = 0.05
+epsilon_rate = 0.9999
 
-gridsize = 15
+gridSize = 14
 GAMMA = 0.9
-model = QNetwork(input_dim=16, hidden_dim=256, output_dim=5)
-epStart = 0
+model = QNetwork()
+
+epStart = 1750
 if epStart > 0:
     model.load_state_dict(torch.load(f'model/model_{epStart}.ln'))
+    epsilon = epsilon * pow(epsilon_rate, epStart)
+    epStart += 1
 
-board = GameEnvironment(gridsize, nothing=0, dead=-1, apple=1)
+board = GameEnvironment(gridSize, nothing=0, dead=-1, apple=1)
 memory = ReplayMemory(1000)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 
-
-def run_episode(num_games, i_episode):
+def run_episode(num_games):
+    global epsilon
     run = True
     move = 0
     games_played = 0
@@ -37,7 +40,8 @@ def run_episode(num_games, i_episode):
         state = get_network_input(board)
         action_0 = model(state)
         rand = np.random.uniform(0, 1)
-        if rand > epsilon or i_episode > epsilonReduceStep:
+
+        if rand > epsilon:
             action = torch.argmax(action_0)
         else:
             action = np.random.randint(0, 5)
@@ -109,6 +113,7 @@ batch_size = 20
 
 
 def train():
+    global epsilon
     scores_deque = deque(maxlen=100)
     scores_array = []
     avg_scores_array = []
@@ -120,9 +125,8 @@ def train():
 
     for i_episode in range(epStart, num_episodes + 1):
 
-        ## print('i_episode: ', i_episode)
-
-        score, avg_len, max_len = run_episode(games_in_episode, i_episode)
+        epsilon = epsilon * epsilon_rate
+        score, avg_len, max_len = run_episode(games_in_episode)
         scores_deque.append(score)
         scores_array.append(score)
         avg_len_array.append(avg_len)
@@ -146,17 +150,14 @@ def train():
             #     torch.save(model.state_dict(), './dir_chk_len/Snake_{}'.format(i_episode))
             torch.save(model.state_dict(), f"model/model_{i_episode}.ln")
 
-            plt.plot(np.arange(1 + epStart, len(avg_len_array) + 1 + epStart), avg_len_array, label="Avg Len of Snake")
-            plt.plot(np.arange(1 + epStart, len(avg_max_len_array) + 1 + epStart), avg_max_len_array,
-                     label="Max Len of Snake")
-            plt.legend(bbox_to_anchor=(1.05, 1))
-            plt.ylabel('Length of Snake')
-            plt.xlabel('Episodes #')
-            plt.show()
-
-    return scores_array, avg_scores_array, avg_len_array, avg_max_len_array
+            # plt.plot(np.arange(1 + epStart, len(avg_len_array) + 1 + epStart), avg_len_array, label="Avg Len of Snake")
+            # plt.plot(np.arange(1 + epStart, len(avg_max_len_array) + 1 + epStart), avg_max_len_array,
+            #          label="Max Len of Snake")
+            # plt.legend(bbox_to_anchor=(1.05, 1))
+            # plt.ylabel('Length of Snake')
+            # plt.xlabel('Episodes #')
+            # plt.show()
 
 
 if __name__ == "__main__":
-    scores, avg_scores, avg_len_of_snake, max_len_of_snake = train()
-    print('length of scores: ', len(scores), ', len of avg_scores: ', len(avg_scores))
+    train()
