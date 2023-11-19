@@ -10,7 +10,7 @@ framerate = 10
 block_size = 20
 
 model = QNetwork()
-model.load_state_dict(torch.load('model/model_1500.ln'))
+model.load_state_dict(torch.load('model/model_4750.ln'))
 
 board = GameEnvironment(gridsize, 0., -100., 100.)
 windowwidth = gridsize * block_size * 2

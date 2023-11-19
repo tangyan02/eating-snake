@@ -105,7 +105,7 @@ def learn(num_updates, batch_size):
 
 
 # num_episodes = 60000
-num_episodes = 10000
+num_episodes = 100000
 num_updates = 500
 print_every = 10
 games_in_episode = 30
