@@ -41,28 +41,6 @@ class snakeclass(object):
     def inBody(self, pos):
         return list(pos) in [list(item) for item in self.prevpos[:-1]]
 
-    def getproximity(self):  # 该函数定义了贪吃蛇头部的位置更新
-        L = self.pos - np.array([1, 0])
-        R = self.pos + np.array([1, 0])
-        U = self.pos - np.array([0, 1])
-        D = self.pos + np.array([0, 1])
-        possdirections = [L, R, U, D]
-        proximity = [int(self.checkdead(x)) for x in possdirections]
-        return proximity
-
-    def relativeForApple(self, applePos):
-        x = 0
-        y = 0
-        if self.pos[0] > applePos[0]:
-            x = 1
-        if self.pos[0] < applePos[0]:
-            x = -1
-        if self.pos[1] > applePos[1]:
-            y = 1
-        if self.pos[1] < applePos[1]:
-            y = -1
-        return np.array([x, y])
-
     def __len__(self):
         return self.len + 1
 

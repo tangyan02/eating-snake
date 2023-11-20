@@ -21,7 +21,8 @@ class Qnet(torch.nn.Module):
 
         self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=256)
         self.relu3 = nn.ReLU()
-        self.fc2 = nn.Linear(in_features=256, out_features=4)
+        self.fcA = nn.Linear(in_features=256, out_features=4)
+        self.fcV = nn.Linear(in_features=256, out_features=4)
 
     def forward(self, x):
         # 第一层卷积、激活函数和池化
@@ -38,8 +39,10 @@ class Qnet(torch.nn.Module):
         x = self.fc1(x)
         x = self.relu3(x)
         # 第二层全连接层
-        x = self.fc2(x)
-        return x
+        A = self.fcA(x)
+        V = self.fcV(x)
+        Q = V + A - A.mean(1).view(-1, 1)
+        return Q
 
 
 class DQN:
@@ -69,13 +72,13 @@ class DQN:
         if np.random.random() < self.epsilon:
             action = np.random.randint(self.action_dim)
         else:
-            state = torch.tensor([state], dtype=torch.float).to(self.device)
+            state = torch.tensor(np.array(state), dtype=torch.float).to(self.device)
             action = self.q_net(state).argmax().item()
         return action
 
     def max_q_value(self, state):
 
-        state = torch.tensor([state], dtype=torch.float).to(self.device)
+        state = torch.tensor(np.array(state), dtype=torch.float).to(self.device)
         return self.q_net(state).max().item()
 
     def update(self, transition_dict):
@@ -107,4 +110,3 @@ class DQN:
             self.target_q_net.load_state_dict(
                 self.q_net.state_dict())  # 更新目标网络
         self.count += 1
-

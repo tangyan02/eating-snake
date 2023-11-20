@@ -18,6 +18,7 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size,
         with tqdm(total=int(num_episodes / 10),
                   desc='Iteration %d' % i) as pbar:
             for i_episode in range(int(num_episodes / 10)):
+                episode = num_episodes / 10 * i + i_episode + 1
                 episode_return = 0
                 state = env.reset()
                 done = False
@@ -43,21 +44,23 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size,
                         }
                         agent.update(transition_dict)
                 return_list.append(episode_return)
-                if (i_episode + 1) % 10 == 0:
+                if episode % 10 == 0:
                     pbar.set_postfix({
                         'episode':
-                            '%d' % (num_episodes / 10 * i + i_episode + 1),
+                            '%d' % episode,
                         'return':
                             '%.3f' % np.mean(return_list[-100:])
                     })
+                if episode % 1000 == 0:
+                    torch.save(agent.q_net.state_dict(), f"model/model_{i_episode}.mdl")
                 pbar.update(1)
     return return_list, max_q_value_list
 
 
 lr = 1e-5
-num_episodes = 10000
+num_episodes = 1000
 gamma = 0.90
-epsilon = 0.05
+epsilon = 0.03
 target_update = 50
 buffer_size = 5000
 minimal_size = 1000
