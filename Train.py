@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-import Game
+from Game import GameEnvironment
 from DQN import DQN
 from ReplayBuffer import ReplayBuffer
 
@@ -44,6 +44,9 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size,
                         }
                         agent.update(transition_dict)
                 return_list.append(episode_return)
+                if episode % 1000 == 0:
+                    torch.save(agent.q_net.state_dict(), f"model/model_{i_episode}.mdl")
+
                 if episode % 10 == 0:
                     pbar.set_postfix({
                         'episode':
@@ -51,8 +54,6 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size,
                         'return':
                             '%.3f' % np.mean(return_list[-100:])
                     })
-                if episode % 1000 == 0:
-                    torch.save(agent.q_net.state_dict(), f"model/model_{i_episode}.mdl")
                 pbar.update(1)
     return return_list, max_q_value_list
 
@@ -67,7 +68,7 @@ minimal_size = 1000
 batch_size = 64
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-env = Game.GameEnvironment(14, 0, -1, 1)
+env = GameEnvironment(14, 0, -1, 1)
 action_dim = 4
 
 random.seed(0)
