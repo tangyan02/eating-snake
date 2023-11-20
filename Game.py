@@ -2,6 +2,8 @@ import numpy as np
 
 # 定义贪吃蛇的动作，
 # R表示向右边运动，就在在positon坐标的X轴加1,Y轴坐标不变，可以实现贪吃蛇头部坐标更新。
+import torch
+
 player_moves = {
     'L': np.array([-1., 0.]),
     'R': np.array([1., 0.]),
@@ -88,45 +90,45 @@ class GameEnvironment(object):
         self.reward_apple = apple
         self.time_since_apple = 0
 
-    def resetgame(self):
+    def step(self, action):
+        reward, done = self.update_boardstate(action)
+        state = self.getState()
+        return state, reward, done, None
+
+    def reset(self):
         self.apple.pos = np.random.randint(1, self.gridsize, 2).astype('float')  # 随机初始化苹果的位置
         self.apple.score = 0  # 初始化score
         self.snake.pos = np.random.randint(1, self.gridsize, 2).astype('float')  # 初始化贪吃蛇出现的位置
         self.snake.prevpos = [self.snake.pos.copy().astype('float')]
         self.snake.len = initial_playersize
         self.game_over = False
+        return self.getState()
 
-    def getBodySide(self):
-        up = 0
-        right = 0
-        down = self.gridsize
-        left = self.gridsize
-        for pos in self.snake.prevpos:
-            if pos[0] < left:
-                left = pos[0]
-            if pos[0] > right:
-                right = pos[0]
-            if pos[1] < down:
-                down = pos[1]
-            if pos[1] > up:
-                up = pos[1]
-        return [up, down, left, right]
+    def getState(self):
+        snake = self.snake
+        apple = self.apple
 
-    def getFillCount(self):
-        self.snakeFlag = [[0] * self.gridsize for _ in range(self.gridsize)]
+        size = 16
 
-        for pos in self.snake.prevpos:
-            if 0 <= pos[0] < self.gridsize and 0 <= pos[1] < self.gridsize:
-                self.snakeFlag[int(pos[0])][int(pos[1])] = 1
+        channel_1 = np.zeros((size, size))
+        channel_1[int(snake.pos[0] + 1)][int(snake.pos[1] + 1)] = 1
 
-        list = []
-        for x in range(self.gridsize):
-            for y in range(self.gridsize):
-                list.append(self.snakeFlag[x][y])
-        return list
+        channel_2 = np.zeros((size, size))
+        channel_2[int(apple.pos[0]) + 1][int(apple.pos[1] + 1)] = 1
 
-    def get_boardstate(self):
-        return [self.snake.pos, self.snake.dir, self.snake.prevpos, self.apple.pos, self.apple.score, self.game_over]
+        channel_3 = np.zeros((size, size))
+        for pos in snake.prevpos:
+            channel_3[int(pos[0] + 1)][int(pos[1] + 1)] = 1
+
+        channel_4 = np.zeros((size, size))
+        for i in range(size):
+            channel_4[i][0] = 1
+            channel_4[0][i] = 1
+            channel_4[size - 1][i] = 1
+            channel_4[i][size - 1] = 1
+
+        state = np.stack([channel_1, channel_2, channel_3, channel_4], axis=0)
+        return state
 
     def update_boardstate(self, move):
         reward = self.reward_nothing
@@ -147,7 +149,7 @@ class GameEnvironment(object):
         self.snake.move()
         self.time_since_apple += 1
         # --
-        if self.time_since_apple == 200:  # episode为100时候结束游戏
+        if self.time_since_apple == 100:  # episode为100时候结束游戏
             self.game_over = True
             reward = self.reward_dead
             self.time_since_apple = 0
@@ -163,5 +165,4 @@ class GameEnvironment(object):
             self.snake.len += 1
             self.time_since_apple = 0
             reward = self.reward_apple
-        len_of_snake = len(self.snake)
-        return reward, Done, len_of_snake
+        return reward, Done
