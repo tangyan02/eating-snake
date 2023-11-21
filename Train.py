@@ -9,8 +9,7 @@ from DQN import DQN
 from ReplayBuffer import ReplayBuffer
 
 
-def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size,
-              batch_size):
+def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size, batch_size):
     return_list = []
     max_q_value_list = []
     max_q_value = 0
@@ -62,10 +61,11 @@ lr = 1e-5
 num_episodes = 10000
 gamma = 0.90
 epsilon = 0.03
-target_update = 50
-buffer_size = 5000
-minimal_size = 1000
-batch_size = 64
+target_update = 50  # 将目标网络更新到当前价值网络锁需的步数间隔
+
+buffer_size = 5000  # replay buffer 保存的样本总数
+minimal_size = 1000  # replay buffer 达到这个数量，才开始取样学习
+batch_size = 64  # replay buffer 每次随机采样样本数
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 env = GameEnvironment(14, 0, -1, 1)
