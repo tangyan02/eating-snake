@@ -45,7 +45,7 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size,
                         agent.update(transition_dict)
                 return_list.append(episode_return)
                 if episode % 1000 == 0:
-                    torch.save(agent.q_net.state_dict(), f"model/model_{i_episode}.mdl")
+                    agent.save(f"model/model_{episode}.mdl")
 
                 if episode % 10 == 0:
                     pbar.set_postfix({
@@ -59,7 +59,7 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size,
 
 
 lr = 1e-5
-num_episodes = 1000
+num_episodes = 10000
 gamma = 0.90
 epsilon = 0.03
 target_update = 50

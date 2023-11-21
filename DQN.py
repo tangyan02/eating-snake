@@ -68,6 +68,12 @@ class DQN:
         self.dqn_type = dqn_type
         self.device = device
 
+    def save(self, path):
+        torch.save(self.q_net.state_dict(), path)
+
+    def load(self, path):
+        self.q_net.load_state_dict(torch.load(path))
+
     def take_action(self, state):
         if np.random.random() < self.epsilon:
             action = np.random.randint(self.action_dim)
