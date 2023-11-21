@@ -17,7 +17,7 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size, batch_size)
         with tqdm(total=int(num_episodes / 10),
                   desc='Iteration %d' % i) as pbar:
             for i_episode in range(int(num_episodes / 10)):
-                episode = num_episodes / 10 * i + i_episode + 1
+                episode = int(num_episodes / 10 * i + i_episode + 1)
                 episode_return = 0
                 state = env.reset()
                 done = False
