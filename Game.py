@@ -14,6 +14,9 @@ player_moves = {
 }
 initial_playersize = 4
 
+dx = [0, 0, -1, 1]
+dy = [1, -1, 0, 0]
+
 
 class snakeclass(object):
     def __init__(self, gridsize):
@@ -40,9 +43,6 @@ class snakeclass(object):
         else:
             return False
 
-    def inBody(self, pos):
-        return list(pos) in [list(item) for item in self.prevpos[:-1]]
-
     def __len__(self):
         return self.len + 1
 
@@ -56,7 +56,7 @@ class appleclass(object):  # 定义苹果出现的地方
 
     def reset(self):
         count = 0
-        inBody = [[0] * 14 for _ in range(self.gridSize)]
+        inBody = [[0] * self.gridSize for _ in range(self.gridSize)]
         for pos in self.snake.prevpos:
             inBody[round(pos[0])][round(pos[1])] = 1
 
@@ -65,7 +65,7 @@ class appleclass(object):  # 定义苹果出现的地方
                 if inBody[i][j] == 0:
                     count += 1
 
-        k = random.randint(0, count)
+        k = random.randint(0, count - 1)
         count = 0
         for i in range(0, self.gridSize):
             for j in range(0, self.gridSize):
@@ -105,7 +105,7 @@ class GameEnvironment(object):
         snake = self.snake
         apple = self.apple
 
-        size = 16
+        size = self.gridsize + 2
 
         channel_1 = np.zeros((size, size))
         channel_1[int(snake.pos[0] + 1)][int(snake.pos[1] + 1)] = 1
@@ -126,6 +126,29 @@ class GameEnvironment(object):
 
         state = np.stack([channel_1, channel_2, channel_3, channel_4], axis=0)
         return state
+
+    def tryFill(self, x, y, map):
+        count = 0
+        for i in range(4):
+            xx = int(x) + dx[i]
+            yy = int(y) + dy[i]
+
+            if xx < 0 or xx >= self.gridsize or yy < 0 or yy >= self.gridsize:
+                continue
+            if map[xx][yy] == 0:
+                map[xx][yy] = 1
+                count += 1
+                count += self.tryFill(xx, yy, map)
+        return count
+
+    def isSpaceEnough(self):
+        map = [[0] * self.gridsize for _ in range(self.gridsize)]
+        snakeBodyCount = 0
+        for pos in self.snake.prevpos:
+            map[round(pos[0])][round(pos[1])] = 1
+            snakeBodyCount += 1
+        spaceCount = self.tryFill(int(self.snake.pos[0]), int(self.snake.pos[1]), map)
+        return snakeBodyCount + spaceCount == self.gridsize * self.gridsize
 
     def update_boardstate(self, move):
         reward = self.reward_nothing

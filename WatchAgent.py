@@ -9,9 +9,9 @@ framerate = 10
 block_size = 20
 
 qNet = Qnet()
-qNet.load_state_dict(torch.load('model/model_10000.mdl'))
+qNet.load_state_dict(torch.load('model/model_7000.mdl'))
 
-env = GameEnvironment(gridsize, 0., -100., 100.)
+env = GameEnvironment(gridsize, 0., -1, 1)
 env.reset()
 
 windowwidth = gridsize * block_size * 2
@@ -33,7 +33,7 @@ def drawboard(snake, apple):  # 通过pygame绘制可视化贪吃蛇运动的
 
 
 runGame = True
-
+totalReward = 0
 while runGame:
     clock.tick(framerate)
 
@@ -46,9 +46,15 @@ while runGame:
 
     drawboard(env.snake, env.apple)
 
-    lensnaketext = font.render(' length of snake: ' + str(env.snake.len + 1), False, (255, 255, 255))
+    totalReward += reward
+    space_enough = env.isSpaceEnough()
+    lensnaketext = font.render('length of snake: ' + str(env.snake.len + 1), False, (255, 255, 255))
+    rewardtext = font.render('reword: ' + str(int(totalReward)), False, (255, 255, 255))
+    spaceenoughdtext = font.render('space enough: ' + str(int(space_enough)), False, (255, 255, 255))
 
     win.blit(lensnaketext, (windowwidth // 2, 40))
+    win.blit(rewardtext, (windowwidth // 2, 80))
+    win.blit(spaceenoughdtext, (windowwidth // 2, 120))
 
     for event in pygame.event.get():  # pygame 推出
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -68,5 +74,6 @@ while runGame:
 
     if done == True:
         env.reset()
+        totalReward = 0
 
 pygame.quit()
