@@ -145,6 +145,8 @@ class GameEnvironment(object):
         map = [[0] * self.gridsize for _ in range(self.gridsize)]
         snakeBodyCount = 0
         for pos in self.snake.prevpos:
+            if pos[0] < 0 or pos[0] >= self.gridsize or pos[1] < 0 or pos[1] >= self.gridsize:
+                return 0
             map[round(pos[0])][round(pos[1])] = 1
             snakeBodyCount += 1
         spaceCount = self.tryFill(int(self.snake.pos[0]), int(self.snake.pos[1]), map)
@@ -185,4 +187,7 @@ class GameEnvironment(object):
             self.snake.len += 1
             self.time_since_apple = 0
             reward = self.reward_apple
+
+        if not self.isSpaceEnough():
+            reward -= 0.1
         return reward, Done
