@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 # 定义贪吃蛇的动作，
@@ -46,21 +48,38 @@ class snakeclass(object):
 
 
 class appleclass(object):  # 定义苹果出现的地方
-    def __init__(self, gridsize):
-        self.pos = np.random.randint(1, gridsize, 2)
-        self.score = 0
-        self.gridsize = gridsize
+    def __init__(self, gridSize, snake):
+        self.snake = snake
+        self.gridSize = gridSize
+        self.pos = np.random.randint(1, gridSize, 2)
+        self.reset()
 
-    def eaten(self):
-        ## generate new apple every time the previous one is eaten
-        self.pos = np.random.randint(1, self.gridsize, 2)
-        self.score += 1
+    def reset(self):
+        count = 0
+        inBody = [[0] * 14 for _ in range(self.gridSize)]
+        for pos in self.snake.prevpos:
+            inBody[round(pos[0])][round(pos[1])] = 1
+
+        for i in range(0, self.gridSize):
+            for j in range(0, self.gridSize):
+                if inBody[i][j] == 0:
+                    count += 1
+
+        k = random.randint(0, count)
+        count = 0
+        for i in range(0, self.gridSize):
+            for j in range(0, self.gridSize):
+                if inBody[i][j] == 0:
+                    count += 1
+                    if count == k:
+                        self.pos = np.array([i, j])
+                        return
 
 
 class GameEnvironment(object):
     def __init__(self, gridsize, nothing, dead, apple):
         self.snake = snakeclass(gridsize)
-        self.apple = appleclass(gridsize)
+        self.apple = appleclass(gridsize, self.snake)
         self.game_over = False
         self.gridsize = gridsize
         self.reward_nothing = nothing
@@ -139,7 +158,7 @@ class GameEnvironment(object):
             self.time_since_apple = 0
             Done = True
         elif (self.snake.pos == self.apple.pos).all():  # 判断是否吃到苹果
-            self.apple.eaten()
+            self.apple.reset()
             self.snake.len += 1
             self.time_since_apple = 0
             reward = self.reward_apple
