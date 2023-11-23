@@ -65,7 +65,7 @@ class appleclass(object):  # 定义苹果出现的地方
                 if inBody[i][j] == 0:
                     count += 1
 
-        k = random.randint(0, count - 1)
+        k = random.randint(1, count)
         count = 0
         for i in range(0, self.gridSize):
             for j in range(0, self.gridSize):
