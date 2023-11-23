@@ -188,6 +188,4 @@ class GameEnvironment(object):
             self.time_since_apple = 0
             reward = self.reward_apple
 
-        if not self.isSpaceEnough():
-            reward -= 0.1
         return reward, Done
