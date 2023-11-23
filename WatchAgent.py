@@ -9,7 +9,7 @@ framerate = 10
 block_size = 20
 
 qNet = Qnet()
-qNet.load_state_dict(torch.load('model/model_7000.mdl'))
+qNet.load_state_dict(torch.load('model/model_10000.mdl'))
 
 env = GameEnvironment(gridsize, 0., -1, 1)
 env.reset()
@@ -49,7 +49,7 @@ while runGame:
     totalReward += reward
     space_enough = env.isSpaceEnough()
     lensnaketext = font.render('length of snake: ' + str(env.snake.len + 1), False, (255, 255, 255))
-    rewardtext = font.render('reword: ' + str(int(totalReward)), False, (255, 255, 255))
+    rewardtext = font.render('reword: ' + str(totalReward), False, (255, 255, 255))
     spaceenoughdtext = font.render('space enough: ' + str(int(space_enough)), False, (255, 255, 255))
 
     win.blit(lensnaketext, (windowwidth // 2, 40))
