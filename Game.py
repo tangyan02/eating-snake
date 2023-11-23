@@ -43,6 +43,11 @@ class snakeclass(object):
         else:
             return False
 
+    def getDirDesc(self):
+        for k, v in player_moves.items():
+            if (v == self.dir).all():
+                return k
+
     def __len__(self):
         return self.len + 1
 

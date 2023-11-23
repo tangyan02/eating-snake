@@ -32,6 +32,16 @@ def drawboard(snake, apple):  # 通过pygame绘制可视化贪吃蛇运动的
                      (apple.pos[0] * block_size, apple.pos[1] * block_size, block_size, block_size))  # 绘制苹果
 
 
+def pause():
+    paused = True
+    while paused == True:
+        clock.tick(10)
+        pygame.event.pump()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                paused = False
+
+
 runGame = True
 totalReward = 0
 while runGame:
@@ -48,31 +58,28 @@ while runGame:
 
     totalReward += reward
     space_enough = env.isSpaceEnough()
-    lensnaketext = font.render('length of snake: ' + str(env.snake.len + 1), False, (255, 255, 255))
+    lensnaketext = font.render('snake length: ' + str(env.snake.len + 1), False, (255, 255, 255))
     rewardtext = font.render('reword: ' + str(totalReward), False, (255, 255, 255))
-    spaceenoughdtext = font.render('space enough: ' + str(int(space_enough)), False, (255, 255, 255))
+    spaceenoughdtext = font.render('space enough: ' + str(space_enough), False, (255, 255, 255))
+    snakedirdtext = font.render('snake direction: ' + str(env.snake.getDirDesc()), False, (255, 255, 255))
 
     win.blit(lensnaketext, (windowwidth // 2, 40))
     win.blit(rewardtext, (windowwidth // 2, 80))
     win.blit(spaceenoughdtext, (windowwidth // 2, 120))
+    win.blit(snakedirdtext, (windowwidth // 2, 160))
 
     for event in pygame.event.get():  # pygame 推出
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             runGame = False
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_r]:
-        paused = True
-        while paused == True:
-            clock.tick(10)
-            pygame.event.pump()
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    paused = False
+    if keys[pygame.K_SPACE]:
+        pause()
 
     pygame.display.update()
 
-    if done == True:
+    if done:
+        pause()
         env.reset()
         totalReward = 0
 
