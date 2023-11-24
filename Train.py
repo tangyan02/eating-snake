@@ -13,11 +13,12 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size, batch_size)
     return_list = []
     max_q_value_list = []
     max_q_value = 0
-    for i in range(10):
-        with tqdm(total=int(num_episodes / 10),
+    barIter = 10
+    for i in range(barIter):
+        with tqdm(total=int(num_episodes / barIter),
                   desc='Iteration %d' % i) as pbar:
-            for i_episode in range(int(num_episodes / 10)):
-                episode = int(num_episodes / 10 * i + i_episode + 1)
+            for i_episode in range(int(num_episodes / barIter)):
+                episode = int(num_episodes / barIter * i + i_episode + 1)
                 episode_return = 0
                 state = env.reset()
                 done = False
@@ -58,7 +59,7 @@ def train_DQN(agent, env, num_episodes, replay_buffer, minimal_size, batch_size)
 
 
 lr = 1e-5
-num_episodes = 10000
+num_episodes = 40000
 gamma = 0.90
 epsilon = 0.03
 target_update = 50  # 将目标网络更新到当前价值网络锁需的步数间隔

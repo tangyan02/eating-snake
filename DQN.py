@@ -9,20 +9,20 @@ class Qnet(torch.nn.Module):
 
     def __init__(self):
         super(Qnet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16,
+        self.conv1 = nn.Conv2d(in_channels=4, out_channels=32,
                                kernel_size=(5, 5), stride=(1, 1), padding=2)
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32,
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64,
                                kernel_size=(5, 5), stride=(1, 1), padding=2)
         self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=256)
+        self.fc1 = nn.Linear(in_features=4 * 4 * 64, out_features=1024)
         self.relu3 = nn.ReLU()
-        self.fcA = nn.Linear(in_features=256, out_features=4)
-        self.fcV = nn.Linear(in_features=256, out_features=4)
+        self.fcA = nn.Linear(in_features=1024, out_features=4)
+        self.fcV = nn.Linear(in_features=1024, out_features=1)
 
     def forward(self, x):
         # 第一层卷积、激活函数和池化
@@ -34,7 +34,7 @@ class Qnet(torch.nn.Module):
         x = self.relu2(x)
         x = self.pool2(x)
         # 将数据平展成一维
-        x = x.view(-1, 4 * 4 * 32)
+        x = x.view(-1, 4 * 4 * 64)
         # 第一层全连接层
         x = self.fc1(x)
         x = self.relu3(x)
