@@ -5,24 +5,26 @@ from torch import nn
 
 
 class Qnet(torch.nn.Module):
-    ''' 只有一层隐藏层的Q网络 '''
-
     def __init__(self):
         super(Qnet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=32,
-                               kernel_size=(5, 5), stride=(1, 1), padding=2)
+        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16,
+                               kernel_size=(7, 7), stride=(1, 1), padding=3)
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64,
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32,
                                kernel_size=(5, 5), stride=(1, 1), padding=2)
         self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.fc1 = nn.Linear(in_features=4 * 4 * 64, out_features=1024)
+        self.conv3 = nn.Conv2d(in_channels=32, out_channels=32,
+                               kernel_size=(3, 3), stride=(1, 1), padding=1)
         self.relu3 = nn.ReLU()
-        self.fcA = nn.Linear(in_features=1024, out_features=4)
-        self.fcV = nn.Linear(in_features=1024, out_features=1)
+
+        self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=512)
+        self.reluFc1 = nn.ReLU()
+        self.fcA = nn.Linear(in_features=512, out_features=4)
+        self.fcV = nn.Linear(in_features=512, out_features=1)
 
     def forward(self, x):
         # 第一层卷积、激活函数和池化
@@ -33,8 +35,11 @@ class Qnet(torch.nn.Module):
         x = self.conv2(x)
         x = self.relu2(x)
         x = self.pool2(x)
+        # 第三层卷积、激活函数
+        x = self.conv3(x)
+        x = self.relu3(x)
         # 将数据平展成一维
-        x = x.view(-1, 4 * 4 * 64)
+        x = x.view(-1, 4 * 4 * 32)
         # 第一层全连接层
         x = self.fc1(x)
         x = self.relu3(x)
@@ -88,16 +93,11 @@ class DQN:
         return self.q_net(state).max().item()
 
     def update(self, transition_dict):
-        states = torch.tensor(transition_dict['states'],
-                              dtype=torch.float).to(self.device)
-        actions = torch.tensor(transition_dict['actions']).view(-1, 1).to(
-            self.device)
-        rewards = torch.tensor(transition_dict['rewards'],
-                               dtype=torch.float).view(-1, 1).to(self.device)
-        next_states = torch.tensor(transition_dict['next_states'],
-                                   dtype=torch.float).to(self.device)
-        dones = torch.tensor(transition_dict['dones'],
-                             dtype=torch.float).view(-1, 1).to(self.device)
+        states = torch.tensor(transition_dict['states'], dtype=torch.float).to(self.device)
+        actions = torch.tensor(transition_dict['actions']).view(-1, 1).to(self.device)
+        rewards = torch.tensor(transition_dict['rewards'], dtype=torch.float).view(-1, 1).to(self.device)
+        next_states = torch.tensor(transition_dict['next_states'], dtype=torch.float).to(self.device)
+        dones = torch.tensor(transition_dict['dones'], dtype=torch.float).view(-1, 1).to(self.device)
 
         q_values = self.q_net(states).gather(1, actions)  # Q值
         # 下个状态的最大Q值

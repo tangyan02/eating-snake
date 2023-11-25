@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import numpy as np
 from Game import GameEnvironment
@@ -79,7 +81,7 @@ while runGame:
     pygame.display.update()
 
     if done:
-        pause()
+        time.sleep(1)
         env.reset()
         totalReward = 0
 

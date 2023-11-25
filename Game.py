@@ -93,7 +93,7 @@ class GameEnvironment(object):
         self.time_since_apple = 0
 
     def step(self, action):
-        reward, done = self.update_boardstate(action)
+        reward, done = self.update_board_state(action)
         state = self.getState()
         return state, reward, done, None
 
@@ -157,10 +157,9 @@ class GameEnvironment(object):
         spaceCount = self.tryFill(int(self.snake.pos[0]), int(self.snake.pos[1]), map)
         return snakeBodyCount + spaceCount == self.gridsize * self.gridsize
 
-    def update_boardstate(self, move):
+    def update_board_state(self, move):
         reward = self.reward_nothing
         Done = False
-        # python 中的all函数用于判断可迭代iterable中所有元素是否都是True，如果是返回Treu，否则False
         if move == 0:
             if not (self.snake.dir == player_moves['R']).all():
                 self.snake.dir = player_moves['L']
@@ -175,19 +174,23 @@ class GameEnvironment(object):
                 self.snake.dir = player_moves['D']
         self.snake.move()
         self.time_since_apple += 1
-        # --
-        if self.time_since_apple == 200:  # 到达一定步数没吃到苹果，则认为失败
+
+        # 长度15以内，最多玩100步，否则玩200步
+        stepLimit = 200
+        if self.snake.len < 15:
+            stepLimit = 100
+        if self.time_since_apple >= stepLimit:  # 到达一定步数没吃到苹果，结束游戏
             self.game_over = True
-            reward = self.reward_dead
             self.time_since_apple = 0
             Done = True
-        # --
+
         if self.snake.checkdead(self.snake.pos) == True:  # 碰到边缘和身子，结束游戏
             self.game_over = True
             reward = self.reward_dead
             self.time_since_apple = 0
             Done = True
-        elif (self.snake.pos == self.apple.pos).all():  # 判断是否吃到苹果
+
+        if (self.snake.pos == self.apple.pos).all():  # 判断是否吃到苹果
             self.apple.reset()
             self.snake.len += 1
             self.time_since_apple = 0
