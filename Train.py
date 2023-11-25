@@ -81,7 +81,7 @@ def train_DQN(agent, env, num_episodes, started_episodes, replay_buffer, minimal
 dirPreBuild()
 
 lr = 1e-5
-num_episodes = 20000
+num_episodes = 50000
 
 gamma = 0.90
 epsilon = 0.03
