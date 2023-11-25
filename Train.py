@@ -33,13 +33,14 @@ def getDevice():
 
 def doAfterPerEpisde(agent, i_episode, return_list):
     if i_episode % 1000 == 0:
-        print(f"{getTimeStr()}episode:{'%d' % i_episode} return:{'%.3f' % np.mean(return_list[-100:])}")
-
         agent.save(f"model/model_{i_episode}.mdl")
 
         f = open(f"logs/returns_{i_episode}.log")
         f.write(str.join(" ", return_list))
         f.close()
+
+    if i_episode % 100 == 0:
+        print(f"{getTimeStr()}episode:{'%d' % i_episode} return:{'%.3f' % np.mean(return_list[-100:])}")
 
 
 def train_DQN(agent, env, num_episodes, started_episodes, replay_buffer, minimal_size, batch_size):
