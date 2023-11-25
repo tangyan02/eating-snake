@@ -184,7 +184,7 @@ class GameEnvironment(object):
             self.time_since_apple = 0
             Done = True
 
-        if self.snake.checkdead(self.snake.pos) == True:  # 碰到边缘和身子，结束游戏
+        if self.snake.checkdead(self.snake.pos):  # 碰到边缘和身子，结束游戏
             self.game_over = True
             reward = self.reward_dead
             self.time_since_apple = 0
