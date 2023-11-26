@@ -30,7 +30,6 @@ class Qnet(torch.nn.Module):
         self.conv1 = nn.Conv2d(in_channels=4, out_channels=16,
                                kernel_size=(7, 7), stride=(1, 1), padding=3)
         self.relu1 = nn.ReLU()
-        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         self.residualBlock1 = ResidualBlock(16, 32)
         self.residualBlock2 = ResidualBlock(32, 32)
@@ -47,7 +46,6 @@ class Qnet(torch.nn.Module):
         # 第一层卷积、激活函数和池化
         x = self.conv1(x)
         x = self.relu1(x)
-        x = self.pool1(x)
         # 残差快
         x = self.residualBlock1(x)
         x = self.residualBlock2(x)
