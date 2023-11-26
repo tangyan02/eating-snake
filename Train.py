@@ -36,7 +36,7 @@ def doAfterPerEpisde(agent, i_episode, return_list):
         agent.save(f"model/model_{i_episode}.mdl")
 
         f = open(f"logs/returns_{i_episode}.log", "w")
-        f.write(str.join(" ", return_list))
+        f.write(str.join(" ", map(str, return_list)))
         f.close()
 
     if i_episode % 100 == 0:
