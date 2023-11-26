@@ -4,6 +4,26 @@ import torch.nn.functional as F
 from torch import nn
 
 
+# 定义残差块
+class ResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(ResidualBlock, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=(3, 3), stride=(1, 1), padding=1)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=(3, 3), stride=(1, 1), padding=1)
+
+        self.convExtra = nn.Conv2d(in_channels, out_channels, kernel_size=(1, 1), stride=(1, 1), padding=0)
+
+    def forward(self, x):
+        residual = x
+        out = self.conv1(x)
+        out = self.relu(out)
+        out = self.conv2(out)
+        out += self.convExtra(residual)
+        out = self.relu(out)
+        return out
+
+
 class Qnet(torch.nn.Module):
     def __init__(self):
         super(Qnet, self).__init__()
@@ -12,38 +32,35 @@ class Qnet(torch.nn.Module):
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32,
-                               kernel_size=(5, 5), stride=(1, 1), padding=2)
-        self.relu2 = nn.ReLU()
-        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.residualBlock1 = ResidualBlock(16, 32)
+        self.residualBlock2 = ResidualBlock(32, 32)
 
-        self.conv3 = nn.Conv2d(in_channels=32, out_channels=32,
-                               kernel_size=(3, 3), stride=(1, 1), padding=1)
-        self.relu3 = nn.ReLU()
+        self.residualBlock3 = ResidualBlock(32, 64)
+        self.residualBlock4 = ResidualBlock(64, 64)
 
-        self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=512)
+        self.fc1 = nn.Linear(in_features=64, out_features=64)
         self.reluFc1 = nn.ReLU()
-        self.fcA = nn.Linear(in_features=512, out_features=4)
-        self.fcV = nn.Linear(in_features=512, out_features=1)
+        self.fcA = nn.Linear(in_features=64, out_features=4)
+        self.fcV = nn.Linear(in_features=64, out_features=1)
 
     def forward(self, x):
         # 第一层卷积、激活函数和池化
         x = self.conv1(x)
         x = self.relu1(x)
         x = self.pool1(x)
-        # 第二层卷积、激活函数和池化
-        x = self.conv2(x)
-        x = self.relu2(x)
-        x = self.pool2(x)
-        # 第三层卷积、激活函数
-        x = self.conv3(x)
-        x = self.relu3(x)
-        # 将数据平展成一维
-        x = x.view(-1, 4 * 4 * 32)
-        # 第一层全连接层
+        # 残差快
+        x = self.residualBlock1(x)
+        x = self.residualBlock2(x)
+        x = self.residualBlock3(x)
+        x = self.residualBlock4(x)
+
+        # 降维求平均
+        x = torch.mean(x, dim=(2, 3))  # 平均池化
+
+        # 全连接层
         x = self.fc1(x)
-        x = self.relu3(x)
-        # 第二层全连接层
+        x = self.reluFc1(x)
+        # 输出
         A = self.fcA(x)
         V = self.fcV(x)
         Q = V + A - A.mean(1).view(-1, 1)
