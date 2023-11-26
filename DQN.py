@@ -55,6 +55,8 @@ class Qnet(torch.nn.Module):
         x = self.residualBlock4(x)
 
         # 降维求平均
+        if len(x.size()) == 3:
+            x = x.unsqueeze(0)
         x = torch.mean(x, dim=(2, 3))  # 平均池化
 
         # 全连接层
