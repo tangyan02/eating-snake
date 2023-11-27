@@ -6,13 +6,15 @@ from torch import nn
 
 # 定义残差块
 class ResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, strideSize=1):
         super(ResidualBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=(3, 3), stride=(1, 1), padding=1)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=(3, 3), stride=(strideSize, strideSize),
+                               padding=1)
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=(3, 3), stride=(1, 1), padding=1)
 
-        self.convExtra = nn.Conv2d(in_channels, out_channels, kernel_size=(1, 1), stride=(1, 1), padding=0)
+        self.convExtra = nn.Conv2d(in_channels, out_channels, kernel_size=(1, 1), stride=(strideSize, strideSize),
+                                   padding=0)
 
     def forward(self, x):
         residual = x
@@ -28,19 +30,17 @@ class Qnet(torch.nn.Module):
     def __init__(self):
         super(Qnet, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=4, out_channels=16,
-                               kernel_size=(7, 7), stride=(1, 1), padding=3)
+                               kernel_size=(5, 5), stride=(1, 1), padding=1)
         self.relu1 = nn.ReLU()
 
-        self.residualBlock1 = ResidualBlock(16, 32)
-        self.residualBlock2 = ResidualBlock(32, 32)
+        self.residualBlock1 = ResidualBlock(16, 32, 2)
+        self.residualBlock2 = ResidualBlock(32, 64, 2)
+        self.residualBlock3 = ResidualBlock(64, 64)
 
-        self.residualBlock3 = ResidualBlock(32, 64)
-        self.residualBlock4 = ResidualBlock(64, 64)
-
-        self.fc1 = nn.Linear(in_features=64, out_features=64)
+        self.fc1 = nn.Linear(in_features=4 * 4 * 64, out_features=512)
         self.reluFc1 = nn.ReLU()
-        self.fcA = nn.Linear(in_features=64, out_features=4)
-        self.fcV = nn.Linear(in_features=64, out_features=1)
+        self.fcA = nn.Linear(in_features=512, out_features=4)
+        self.fcV = nn.Linear(in_features=512, out_features=1)
 
     def forward(self, x):
         # 第一层卷积、激活函数和池化
@@ -50,14 +50,10 @@ class Qnet(torch.nn.Module):
         x = self.residualBlock1(x)
         x = self.residualBlock2(x)
         x = self.residualBlock3(x)
-        x = self.residualBlock4(x)
-
-        # 降维求平均
-        if len(x.size()) == 3:
-            x = x.unsqueeze(0)
-        x = torch.mean(x, dim=(2, 3))  # 平均池化
 
         # 全连接层
+        x = x.view(-1, 4 * 4 * 64)
+
         x = self.fc1(x)
         x = self.reluFc1(x)
         # 输出
