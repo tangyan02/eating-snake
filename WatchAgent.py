@@ -11,7 +11,7 @@ framerate = 10
 block_size = 20
 
 qNet = Qnet()
-qNet.load_state_dict(torch.load('model/model_13000.mdl'))
+qNet.load_state_dict(torch.load('model/model_10000.mdl'))
 
 env = GameEnvironment(gridsize, 0., -1, 1)
 env.reset()

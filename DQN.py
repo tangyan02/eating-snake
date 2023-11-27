@@ -29,8 +29,8 @@ class ResidualBlock(nn.Module):
 class Qnet(torch.nn.Module):
     def __init__(self):
         super(Qnet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16,
-                               kernel_size=(5, 5), stride=(1, 1), padding=1)
+        self.conv1 = nn.Conv2d(in_channels=5, out_channels=16,
+                               kernel_size=(3, 3), stride=(1, 1), padding=1)
         self.relu1 = nn.ReLU()
 
         self.residualBlock1 = ResidualBlock(16, 32, 2)
