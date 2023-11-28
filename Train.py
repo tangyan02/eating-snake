@@ -32,15 +32,17 @@ def getDevice():
 
 
 def doAfterPerEpisde(agent, i_episode, return_list):
-    if i_episode % 1000 == 0:
-        agent.save(f"model/model_{i_episode}.mdl")
+    if i_episode % 100 == 0:
+        print(f"{getTimeStr()}episode:{'%d' % i_episode} return:{'%.3f' % np.mean(return_list[-100:])}")
 
+    if i_episode % 1000 == 0:
+        print(f"{getTimeStr()}开始保存模型，episode:{i_episode}")
+        agent.save(f"model/model_{i_episode}.mdl")
+        print(f"{getTimeStr()}模型保存完毕")
         f = open(f"logs/returns_{i_episode}.log", "w")
         f.write(str.join(" ", map(str, return_list)))
         f.close()
-
-    if i_episode % 100 == 0:
-        print(f"{getTimeStr()}episode:{'%d' % i_episode} return:{'%.3f' % np.mean(return_list[-100:])}")
+        print(f"{getTimeStr()}日志写入完毕")
 
 
 def train_DQN(agent, env, num_episodes, started_episodes, replay_buffer, minimal_size, batch_size):
@@ -83,7 +85,7 @@ dirPreBuild()
 lr = 1e-5
 num_episodes = 50000
 
-gamma = 0.90
+gamma = 0.95
 epsilon = 0.03
 target_update = 50  # 将目标网络更新到当前价值网络锁需的步数间隔
 

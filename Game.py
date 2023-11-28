@@ -122,14 +122,13 @@ class GameEnvironment(object):
         for pos in snake.prevpos:
             channel_3[int(pos[0] + 1)][int(pos[1] + 1)] = 1
 
-        channel_4 = np.zeros((size, size))
         for i in range(size):
-            channel_4[i][0] = 1
-            channel_4[0][i] = 1
-            channel_4[i][size - 1] = 1
-            channel_4[size - 1][i] = 1
+            channel_3[i][0] = 1
+            channel_3[0][i] = 1
+            channel_3[i][size - 1] = 1
+            channel_3[size - 1][i] = 1
 
-        channel_5 = np.zeros((size, size))
+        channel_4 = np.zeros((size, size))
         x = snake.pos[0] + 1
         y = snake.pos[1] + 1
 
@@ -138,10 +137,10 @@ class GameEnvironment(object):
             yy = int(y + dy[i])
             if xx < 0 or xx >= size or yy < 0 or yy >= size:
                 continue
-            if channel_3[xx][yy] or channel_4[xx][yy]:
-                channel_5[xx][yy] = 1
+            if channel_3[xx][yy]:
+                channel_4[xx][yy] = 1
 
-        state = np.stack([channel_1, channel_2, channel_3, channel_4, channel_5], axis=0)
+        state = np.stack([channel_1, channel_2, channel_3, channel_4], axis=0)
         return state
 
     def tryFill(self, x, y, map):
