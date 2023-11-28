@@ -143,31 +143,6 @@ class GameEnvironment(object):
         state = np.stack([channel_1, channel_2, channel_3, channel_4], axis=0)
         return state
 
-    def tryFill(self, x, y, map):
-        count = 0
-        for i in range(4):
-            xx = int(x) + dx[i]
-            yy = int(y) + dy[i]
-
-            if xx < 0 or xx >= self.gridsize or yy < 0 or yy >= self.gridsize:
-                continue
-            if map[xx][yy] == 0:
-                map[xx][yy] = 1
-                count += 1
-                count += self.tryFill(xx, yy, map)
-        return count
-
-    def isSpaceEnough(self):
-        map = [[0] * self.gridsize for _ in range(self.gridsize)]
-        snakeBodyCount = 0
-        for pos in self.snake.prevpos:
-            if pos[0] < 0 or pos[0] >= self.gridsize or pos[1] < 0 or pos[1] >= self.gridsize:
-                return 0
-            map[round(pos[0])][round(pos[1])] = 1
-            snakeBodyCount += 1
-        spaceCount = self.tryFill(int(self.snake.pos[0]), int(self.snake.pos[1]), map)
-        return snakeBodyCount + spaceCount == self.gridsize * self.gridsize
-
     def update_board_state(self, move):
         reward = self.reward_nothing
         Done = False

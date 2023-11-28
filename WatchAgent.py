@@ -11,7 +11,7 @@ framerate = 10
 block_size = 20
 
 qNet = Qnet()
-qNet.load_state_dict(torch.load('model/model_10000.mdl'))
+qNet.load_state_dict(torch.load('model/model_3000.mdl'))
 
 env = GameEnvironment(gridsize, 0., -1, 1)
 env.reset()
@@ -59,15 +59,12 @@ while runGame:
     drawboard(env.snake, env.apple)
 
     totalReward += reward
-    space_enough = env.isSpaceEnough()
     lensnaketext = font.render('snake length: ' + str(env.snake.len + 1), False, (255, 255, 255))
     rewardtext = font.render('reword: ' + str(totalReward), False, (255, 255, 255))
-    spaceenoughdtext = font.render('space enough: ' + str(space_enough), False, (255, 255, 255))
     snakedirdtext = font.render('snake direction: ' + str(env.snake.getDirDesc()), False, (255, 255, 255))
 
     win.blit(lensnaketext, (windowwidth // 2, 40))
     win.blit(rewardtext, (windowwidth // 2, 80))
-    win.blit(spaceenoughdtext, (windowwidth // 2, 120))
     win.blit(snakedirdtext, (windowwidth // 2, 160))
 
     for event in pygame.event.get():  # pygame 推出

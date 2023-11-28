@@ -39,7 +39,7 @@ def doAfterPerEpisde(agent, i_episode, return_list):
         print(f"{getTimeStr()}开始保存模型，episode:{i_episode}")
         agent.save(f"model/model_{i_episode}.mdl")
         print(f"{getTimeStr()}模型保存完毕")
-        f = open(f"logs/returns_{i_episode}.log", "w")
+        f = open(f"logs/returns.log", "w")
         f.write(str.join(" ", map(str, return_list)))
         f.close()
         print(f"{getTimeStr()}日志写入完毕")
