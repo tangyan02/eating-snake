@@ -156,6 +156,7 @@ class GameEnvironment(object):
         if self.time_since_apple >= stepLimit:  # 到达一定步数没吃到苹果，结束游戏
             self.game_over = True
             self.time_since_apple = 0
+            reward = self.reward_dead
             Done = True
 
         if self.snake.checkdead(self.snake.pos):  # 碰到边缘和身子，结束游戏
