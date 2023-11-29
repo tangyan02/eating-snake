@@ -29,13 +29,14 @@ class ResidualBlock(nn.Module):
 class Qnet(torch.nn.Module):
     def __init__(self):
         super(Qnet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16,
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=16,
                                kernel_size=(3, 3), stride=(1, 1), padding=1)
         self.relu1 = nn.ReLU()
 
-        self.residualBlock1 = ResidualBlock(16, 32, 2)
-        self.residualBlock2 = ResidualBlock(32, 64, 2)
-        self.residualBlock3 = ResidualBlock(64, 64)
+        self.residualBlock1 = ResidualBlock(16, 16)
+        self.residualBlock2 = ResidualBlock(16, 32, 2)
+        self.residualBlock3 = ResidualBlock(32, 64, 2)
+        self.residualBlock4 = ResidualBlock(64, 64)
 
         self.fc1 = nn.Linear(in_features=4 * 4 * 64, out_features=512)
         self.reluFc1 = nn.ReLU()
@@ -43,6 +44,10 @@ class Qnet(torch.nn.Module):
         self.fcV = nn.Linear(in_features=512, out_features=1)
 
     def forward(self, x):
+        # 维度对齐
+        if x.dim() == 3:
+            x = x.unsqueeze(0)
+
         # 第一层卷积、激活函数和池化
         x = self.conv1(x)
         x = self.relu1(x)
@@ -50,6 +55,7 @@ class Qnet(torch.nn.Module):
         x = self.residualBlock1(x)
         x = self.residualBlock2(x)
         x = self.residualBlock3(x)
+        x = self.residualBlock4(x)
 
         # 全连接层
         x = x.view(-1, 4 * 4 * 64)

@@ -128,19 +128,7 @@ class GameEnvironment(object):
             channel_3[i][size - 1] = 1
             channel_3[size - 1][i] = 1
 
-        channel_4 = np.zeros((size, size))
-        x = snake.pos[0] + 1
-        y = snake.pos[1] + 1
-
-        for i in range(4):
-            xx = int(x + dx[i])
-            yy = int(y + dy[i])
-            if xx < 0 or xx >= size or yy < 0 or yy >= size:
-                continue
-            if channel_3[xx][yy]:
-                channel_4[xx][yy] = 1
-
-        state = np.stack([channel_1, channel_2, channel_3, channel_4], axis=0)
+        state = np.stack([channel_1, channel_2, channel_3], axis=0)
         return state
 
     def update_board_state(self, move):
@@ -162,9 +150,9 @@ class GameEnvironment(object):
         self.time_since_apple += 1
 
         # 长度15以内，最多玩100步，否则玩200步
-        stepLimit = 200
-        if self.snake.len < 15:
-            stepLimit = 100
+        stepLimit = 100
+        if self.snake.len > 15:
+            stepLimit = 200
         if self.time_since_apple >= stepLimit:  # 到达一定步数没吃到苹果，结束游戏
             self.game_over = True
             self.time_since_apple = 0

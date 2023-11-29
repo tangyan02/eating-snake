@@ -25,8 +25,10 @@ def getDevice():
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
-    if torch.backends.mps.is_available():
-        device = "mps"
+
+    if hasattr(torch.backends, 'mps'):
+        if torch.backends.mps.is_available():
+            device = "mps"
     print(f"{getTimeStr()}device:{device}")
     return device
 
@@ -85,8 +87,8 @@ dirPreBuild()
 lr = 1e-5
 num_episodes = 50000
 
-gamma = 0.95
-epsilon = 0.03
+gamma = 0.90
+epsilon = 0.1
 target_update = 50  # 将目标网络更新到当前价值网络锁需的步数间隔
 
 buffer_size = 5000  # replay buffer 保存的样本总数
