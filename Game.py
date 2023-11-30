@@ -113,22 +113,22 @@ class GameEnvironment(object):
         size = self.gridsize + 2
 
         channel_1 = np.zeros((size, size))
+        channel_1[int(snake.pos[0] + 1)][int(snake.pos[1] + 1)] = 1
+
+        channel_2 = np.zeros((size, size))
+        channel_2[int(apple.pos[0] + 1)][int(apple.pos[1] + 1)] = 1
+
+        channel_3 = np.zeros((size, size))
         for pos in snake.prevpos:
-            channel_1[int(pos[0] + 1)][int(pos[1] + 1)] = 1
+            channel_3[int(pos[0] + 1)][int(pos[1] + 1)] = 1
 
         for i in range(size):
-            channel_1[i][0] = 1
-            channel_1[0][i] = 1
-            channel_1[i][size - 1] = 1
-            channel_1[size - 1][i] = 1
+            channel_3[i][0] = 1
+            channel_3[0][i] = 1
+            channel_3[i][size - 1] = 1
+            channel_3[size - 1][i] = 1
 
-        channel_1 = np.zeros((size, size))
-        channel_1[int(snake.pos[0] + 1)][int(snake.pos[1] + 1)] = 2
-
-        channel_1 = np.zeros((size, size))
-        channel_1[int(apple.pos[0] + 1)][int(apple.pos[1] + 1)] = 3
-
-        state = np.stack([channel_1], axis=0)
+        state = np.stack([channel_1, channel_2, channel_3], axis=0)
         return state
 
     def update_board_state(self, move):
