@@ -89,11 +89,11 @@ num_episodes = 50000
 
 gamma = 0.90
 epsilon = 0.1
-target_update = 200  # 将目标网络更新到当前价值网络锁需的步数间隔
+target_update = 2000  # 将目标网络更新到当前价值网络锁需的步数间隔
 
 buffer_size = 10000  # replay buffer 保存的样本总数
 minimal_size = 1000  # replay buffer 达到这个数量，才开始取样学习
-batch_size = 64  # replay buffer 每次随机采样样本数device = "cpu"
+batch_size = 100  # replay buffer 每次随机采样样本数device = "cpu"
 
 device = getDevice()
 env = GameEnvironment(14, 0, -1, 1)
