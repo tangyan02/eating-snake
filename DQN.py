@@ -29,7 +29,7 @@ class ResidualBlock(nn.Module):
 class Qnet(torch.nn.Module):
     def __init__(self):
         super(Qnet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=(5, 5), stride=(1, 1), padding=3)
+        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=(5, 5), stride=(1, 1), padding=2)
         self.relu1 = nn.ReLU()
 
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), stride=(2, 2), padding=1)
@@ -38,7 +38,7 @@ class Qnet(torch.nn.Module):
         self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3, 3), stride=(2, 2), padding=1)
         self.relu3 = nn.ReLU()
 
-        self.fc1 = nn.Linear(in_features=5 * 5 * 64, out_features=512)
+        self.fc1 = nn.Linear(in_features=4 * 4 * 64, out_features=512)
         self.reluFc1 = nn.ReLU()
         self.fcA = nn.Linear(in_features=512, out_features=4)
         self.fcV = nn.Linear(in_features=512, out_features=1)
@@ -58,7 +58,7 @@ class Qnet(torch.nn.Module):
         x = self.relu3(x)
 
         # 全连接层
-        x = x.view(-1, 5 * 5 * 64)
+        x = x.view(-1, 4 * 4 * 64)
 
         x = self.fc1(x)
         x = self.reluFc1(x)
