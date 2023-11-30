@@ -89,7 +89,7 @@ num_episodes = 100000
 
 gamma = 0.90
 epsilon = 0.1
-target_update = 200  # 将目标网络更新到当前价值网络锁需的步数间隔
+target_update = 100  # 将目标网络更新到当前价值网络锁需的步数间隔
 
 buffer_size = 10000  # replay buffer 保存的样本总数
 minimal_size = 1000  # replay buffer 达到这个数量，才开始取样学习
