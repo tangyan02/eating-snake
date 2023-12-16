@@ -94,7 +94,7 @@ class GameEnvironment(object):
 
     def step(self, action):
         reward, done = self.update_board_state(action)
-        state = self.getState()
+        state = self.getStateInLiner()
         return state, reward, done, None
 
     def reset(self):
@@ -104,7 +104,26 @@ class GameEnvironment(object):
         self.snake.prevpos = [self.snake.pos.copy().astype('float')]
         self.snake.len = initial_playersize
         self.game_over = False
-        return self.getState()
+        return self.getStateInLiner()
+
+    def getStateInLiner(self):
+        snake = self.snake
+        apple = self.apple
+
+        features = []
+        features.append(snake.pos[0])
+        features.append(snake.pos[1])
+        features.append(apple.pos[0])
+        features.append(apple.pos[1])
+        for i in range(4):
+            x = snake.pos[0] + dx[i]
+            y = snake.pos[1] + dy[i]
+            features.append(int(snake.checkdead([x, y])))
+        features.append(apple.pos[0]-snake.pos[0])
+        features.append(apple.pos[1]-snake.pos[1])
+
+        state = np.stack(features, axis=0)
+        return state
 
     def getState(self):
         snake = self.snake

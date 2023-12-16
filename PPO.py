@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -6,82 +7,41 @@ from torch import nn
 class PolicyNet(torch.nn.Module):
     def __init__(self):
         super(PolicyNet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=(5, 5), stride=(1, 1), padding=2)
-        self.relu1 = nn.ReLU()
-        self.pool1 = nn.MaxPool2d(2, 2)
 
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), stride=(1, 1), padding=1)
-        self.relu2 = nn.ReLU()
-        self.pool2 = nn.MaxPool2d(2, 2)
-
-        self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=512)
+        self.fc1 = nn.Linear(in_features=10, out_features=128)
         self.reluFc1 = nn.ReLU()
-        self.fcA = nn.Linear(in_features=512, out_features=4)
-        self.fcV = nn.Linear(in_features=512, out_features=1)
+        self.fc2 = nn.Linear(in_features=128, out_features=128)
+        self.reluFc2 = nn.ReLU()
+        self.fcA = nn.Linear(in_features=128, out_features=4)
 
     def forward(self, x):
-        # 维度对齐
-        if x.dim() == 3:
-            x = x.unsqueeze(0)
-
-        x = self.conv1(x)
-        x = self.relu1(x)
-
-        x = self.conv2(x)
-        x = self.relu2(x)
-
-        x = self.conv3(x)
-        x = self.relu3(x)
-
-        # 全连接层
-        x = x.view(-1, 4 * 4 * 64)
-
         x = self.fc1(x)
         x = self.reluFc1(x)
-        # 输出
-        A = self.fcA(x)
-        A = F.softmax(A, 1)
-        return A
+        # x = self.fc2(x)
+        # x = self.reluFc2(x)
+
+        x = self.fcA(x)
+        x = F.softmax(x, 1)
+        return x
 
 
 class ValueNet(torch.nn.Module):
     def __init__(self):
         super(ValueNet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=(5, 5), stride=(1, 1), padding=2)
-        self.relu1 = nn.ReLU()
-        self.pool1 = nn.MaxPool2d(2, 2)
-
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), stride=(1, 1), padding=1)
-        self.relu2 = nn.ReLU()
-        self.pool2 = nn.MaxPool2d(2, 2)
-
-        self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=512)
+        self.fc1 = nn.Linear(in_features=10, out_features=128)
         self.reluFc1 = nn.ReLU()
-        self.fcA = nn.Linear(in_features=512, out_features=4)
-        self.fcV = nn.Linear(in_features=512, out_features=1)
+        self.fc2 = nn.Linear(in_features=128, out_features=128)
+        self.reluFc2 = nn.ReLU()
+        self.fcV = nn.Linear(in_features=128, out_features=1)
 
     def forward(self, x):
-        # 维度对齐
-        if x.dim() == 3:
-            x = x.unsqueeze(0)
-
-        x = self.conv1(x)
-        x = self.relu1(x)
-
-        x = self.conv2(x)
-        x = self.relu2(x)
-
-        x = self.conv3(x)
-        x = self.relu3(x)
-
-        # 全连接层
-        x = x.view(-1, 4 * 4 * 64)
-
         x = self.fc1(x)
         x = self.reluFc1(x)
-        # 输出
-        V = self.fcV(x)
-        return V
+        # x = self.fc2(x)
+        # x = self.reluFc2(x)
+
+        x = self.fcV(x)
+        return x
 
 
 def compute_advantage(gamma, lmbda, td_delta):
@@ -113,7 +73,7 @@ class PPO:
         self.device = device
 
     def take_action(self, state):
-        state = torch.tensor([state], dtype=torch.float).to(self.device)
+        state = torch.tensor(np.array([state]), dtype=torch.float).to(self.device)
         probs = self.actor(state)
         action_dist = torch.distributions.Categorical(probs)
         action = action_dist.sample()
@@ -139,8 +99,7 @@ class PPO:
         td_delta = td_target - self.critic(states)
         advantage = compute_advantage(self.gamma, self.lmbda,
                                       td_delta.cpu()).to(self.device)
-        old_log_probs = torch.log(self.actor(states).gather(1,
-                                                            actions)).detach()
+        old_log_probs = torch.log(self.actor(states).gather(1, actions)).detach()
 
         for _ in range(self.epochs):
             log_probs = torch.log(self.actor(states).gather(1, actions))

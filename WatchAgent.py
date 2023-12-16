@@ -4,15 +4,15 @@ import pygame
 import numpy as np
 from Game import GameEnvironment
 import torch
-from DQN import Qnet
+
+from PPO import PolicyNet
 
 gridsize = 14  # 13
 framerate = 10
 block_size = 20
 
-qNet = Qnet()
-
-qNet.load_state_dict(torch.load('model/model_10000.mdl', map_location=torch.device("cpu")))
+net = PolicyNet()
+net.load_state_dict(torch.load(f"model/actor_new.mdl", map_location=torch.device("cpu")))
 
 env = GameEnvironment(gridsize, 0., -1, 1)
 env.reset()
@@ -44,16 +44,20 @@ def pause():
             if event.type == pygame.KEYDOWN:
                 paused = False
 
+def take_action(state):
+    state = torch.tensor(np.array([state]), dtype=torch.float).to("cpu")
+    probs = net(state)
+    action_dist = torch.distributions.Categorical(probs)
+    action = action_dist.sample()
+    return action.item()
 
 runGame = True
 totalReward = 0
 while runGame:
     clock.tick(framerate)
 
-    state_0 = env.getState()
-
-    state = torch.tensor(np.array(state_0), dtype=torch.float)
-    action = qNet(state).argmax().item()
+    state = env.getStateInLiner()
+    action = take_action(state)
 
     next_state, reward, done, _ = env.step(action)
 

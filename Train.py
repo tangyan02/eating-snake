@@ -35,8 +35,9 @@ def getDevice():
 def doAfterPerEpisde(agent, i_episode, return_list):
     if i_episode % 100 == 0:
         print(f"{getTimeStr()}episode:{'%d' % i_episode} return:{'%.3f' % np.mean(return_list[-100:])}")
+        agent.save(f"model/actor_new.mdl", f"model/critic_new.mdl")
 
-    if i_episode % 1000 == 0:
+    if i_episode % 10000 == 0:
         print(f"{getTimeStr()}开始保存模型，episode:{i_episode}")
         agent.save(f"model/actor_{i_episode}.mdl", f"model/critic_{i_episode}.mdl")
         print(f"{getTimeStr()}模型保存完毕")
@@ -76,8 +77,8 @@ num_episodes = 100000
 
 actor_lr = 1e-4
 critic_lr = 5e-3
-gamma = 0.9
-lmbda = 0.9
+gamma = 0.95
+lmbda = 0.95
 epochs = 10
 eps = 0.2
 
