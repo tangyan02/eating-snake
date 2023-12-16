@@ -8,16 +8,16 @@ class PolicyNet(torch.nn.Module):
         super(PolicyNet, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=(5, 5), stride=(1, 1), padding=2)
         self.relu1 = nn.ReLU()
+        self.pool1 = nn.MaxPool2d(2, 2)
 
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), stride=(2, 2), padding=1)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), stride=(1, 1), padding=1)
         self.relu2 = nn.ReLU()
+        self.pool2 = nn.MaxPool2d(2, 2)
 
-        self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3, 3), stride=(2, 2), padding=1)
-        self.relu3 = nn.ReLU()
-
-        self.fc1 = nn.Linear(in_features=4 * 4 * 64, out_features=512)
+        self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=512)
         self.reluFc1 = nn.ReLU()
         self.fcA = nn.Linear(in_features=512, out_features=4)
+        self.fcV = nn.Linear(in_features=512, out_features=1)
 
     def forward(self, x):
         # 维度对齐
@@ -49,15 +49,15 @@ class ValueNet(torch.nn.Module):
         super(ValueNet, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=(5, 5), stride=(1, 1), padding=2)
         self.relu1 = nn.ReLU()
+        self.pool1 = nn.MaxPool2d(2, 2)
 
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), stride=(2, 2), padding=1)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), stride=(1, 1), padding=1)
         self.relu2 = nn.ReLU()
+        self.pool2 = nn.MaxPool2d(2, 2)
 
-        self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3, 3), stride=(2, 2), padding=1)
-        self.relu3 = nn.ReLU()
-
-        self.fc1 = nn.Linear(in_features=4 * 4 * 64, out_features=512)
+        self.fc1 = nn.Linear(in_features=4 * 4 * 32, out_features=512)
         self.reluFc1 = nn.ReLU()
+        self.fcA = nn.Linear(in_features=512, out_features=4)
         self.fcV = nn.Linear(in_features=512, out_features=1)
 
     def forward(self, x):
