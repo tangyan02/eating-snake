@@ -10,15 +10,11 @@ class PolicyNet(torch.nn.Module):
 
         self.fc1 = nn.Linear(in_features=10, out_features=128)
         self.reluFc1 = nn.ReLU()
-        self.fc2 = nn.Linear(in_features=128, out_features=128)
-        self.reluFc2 = nn.ReLU()
         self.fcA = nn.Linear(in_features=128, out_features=4)
 
     def forward(self, x):
         x = self.fc1(x)
         x = self.reluFc1(x)
-        # x = self.fc2(x)
-        # x = self.reluFc2(x)
 
         x = self.fcA(x)
         x = F.softmax(x, 1)
@@ -30,15 +26,11 @@ class ValueNet(torch.nn.Module):
         super(ValueNet, self).__init__()
         self.fc1 = nn.Linear(in_features=10, out_features=128)
         self.reluFc1 = nn.ReLU()
-        self.fc2 = nn.Linear(in_features=128, out_features=128)
-        self.reluFc2 = nn.ReLU()
         self.fcV = nn.Linear(in_features=128, out_features=1)
 
     def forward(self, x):
         x = self.fc1(x)
         x = self.reluFc1(x)
-        # x = self.fc2(x)
-        # x = self.reluFc2(x)
 
         x = self.fcV(x)
         return x
