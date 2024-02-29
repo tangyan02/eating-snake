@@ -47,8 +47,7 @@ def pause():
 def take_action(state):
     state = torch.tensor(np.array([state]), dtype=torch.float).to("cpu")
     probs = net(state)
-    action_dist = torch.distributions.Categorical(probs)
-    action = action_dist.sample()
+    action = torch.argmax(probs)
     return action.item()
 
 runGame = True
